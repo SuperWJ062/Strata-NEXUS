@@ -1,0 +1,4 @@
+# machine-local files: setup.py generates them on the deployer machine
+/engine/strata-iq2_xs.json
+/engine/strata-iq2_xs.shared-settings.json
+/engine/run-iq2_xs.bat
