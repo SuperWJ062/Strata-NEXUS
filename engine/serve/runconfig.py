@@ -36,6 +36,12 @@ EDITABLE = [
     ("open_browser", "bool", "Open the chat page in the browser when the model is ready"),
     ("vram_reserve_mib", ("arg", "--vram-reserve-mib"),
      "VRAM in MiB the engine leaves free for other programs (engine default 700)"),
+    ("mtp", ("argbool", "--mtp"),
+     "Multi-token prediction: on keeps the --mtp draft path already in the args, off removes the pair"),
+    ("spec_tokens", ("argnum", "--spec"),
+     "Speculative decoding tokens (empty removes --spec; the number goes after the flag)"),
+    ("spec_min_p", ("argnum", "--spec-min-p"),
+     "Speculative min P (empty removes --spec-min-p)"),
 ]
 SPEC = {k: kind for k, kind, _ in EDITABLE}
 
@@ -53,6 +59,11 @@ def value_of(cfg: dict, key: str):
     if isinstance(kind, tuple) and kind[0] == "sampling":
         s = cfg.get("sampling")
         return s.get(key.split(".", 1)[1]) if isinstance(s, dict) else None
+    if isinstance(kind, tuple) and kind[0] == "argbool":
+        return _arg(cfg, kind[1]) is not None
+    if isinstance(kind, tuple) and kind[0] == "argnum":
+        v = _arg(cfg, kind[1])
+        return float(v) if isinstance(v, str) and v not in ("",) else v
     if isinstance(kind, tuple) and kind[0] == "arg":
         return _arg(cfg, kind[1])
     return cfg.get(key)
@@ -108,6 +119,12 @@ def check(key: str, v, cfg: dict):
         return _number(key, v)
     if k == "arg":
         return _number(key, v, whole=True)
+    if k == "argnum":
+        return _number(key, v)
+    if k == "argbool":
+        if not isinstance(v, bool):
+            raise ValueError(f"{key}: expected true or false, not {v!r}")
+        return v
     rule = kind[1]                                     # a sampling key: the server's own rules
     if rule == "num>=0":
         return float(_number(key, v))
@@ -141,7 +158,7 @@ def apply(cfg: dict, changes: dict) -> tuple[dict, list[str]]:
                 new["sampling"] = s
             else:
                 new.pop("sampling", None)
-        elif isinstance(kind, tuple) and kind[0] == "arg":
+        elif isinstance(kind, tuple) and kind[0] in ("arg", "argnum"):
             a = list(new.get("args") or [])
             flag = kind[1]
             if flag in a[:-1]:
@@ -153,6 +170,25 @@ def apply(cfg: dict, changes: dict) -> tuple[dict, list[str]]:
             elif v is not None:
                 a += [flag, str(v)]
             new["args"] = a
+        elif isinstance(kind, tuple) and kind[0] == "argbool":
+            a = list(new.get("args") or [])
+            flag = kind[1]
+            stash = key + "_path"               # where the removed value waits for a later "on"
+            if v is False:
+                if flag in a[:-1]:
+                    i = a.index(flag)
+                    new[stash] = str(a[i + 1])  # remember the value so "on" can restore it
+                    del a[i:i + 2]
+                    new["args"] = a
+            elif flag in a[:-1]:
+                pass                            # already on, nothing to change
+            else:
+                path = new.get(stash)
+                if not path:
+                    raise ValueError(f"{key}: cannot turn on - the args carry no {flag} value to keep; "
+                                     "add the pair to the run config's args first")
+                a += [flag, str(path)]
+                new["args"] = a
         elif v is None:
             new.pop(key, None)
         else:

@@ -4700,6 +4700,7 @@ def make_handler(svc: Service):
             body = json.dumps(obj, ensure_ascii=False).encode()
             self.send_response(code)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "no-store")  # 2026-10-11: 防 Chromium 启发式缓存 /config 等动态 JSON（实测会致 runtime 页回填旧值）
             self._cors()
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()

@@ -1,5 +1,5 @@
 {
- "exe": "<ENGINE>\\engine\\strata.exe",
+ "exe": "<ENGINE>\\engine\\engine\\strata.exe",
  "args": [
   "--pack",
   "<STRATA-DATA>\\packs\\iq2_xs",
@@ -8,7 +8,7 @@
   "--ple-gguf",
   "<STRATA-DATA>\\models\\IQ2_XS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf",
   "--expert-profile",
-  "<ENGINE>\\data\\expert-profile.bin",
+  "<ENGINE>\\engine\\data\\expert-profile.bin",
   "--expert-cache",
   "auto",
   "--prefill",
@@ -17,8 +17,6 @@
   "4",
   "--spec-min-p",
   "0.5",
-  "--mtp",
-  "<STRATA-DATA>\\mtp\\rt",
   "--max-context",
   "131072",
   "--kv",
@@ -31,20 +29,24 @@
   "--conversation-cache-mib",
   "8192",
   "--vram-reserve-mib",
-  "14324"
+  "4084",
+  "--adapt-min-gain",
+  "0",
+  "--mtp",
+  "<STRATA-DATA>\\mtp\\rt"
  ],
- "cwd": "<ENGINE>",
+ "cwd": "<ENGINE>\\engine",
  "tokenizer": "<STRATA-DATA>\\packs\\iq2_xs\\tokenizer",
  "model_name": "qwen3.8-flash-next-iq2_xs",
- "log": "<ENGINE>\\strata-iq2_xs.log",
+ "log": "<ENGINE>\\engine\\strata-iq2_xs.log",
  "lib_dirs": [
-  "<ENGINE>\\.venv\\Lib\\site-packages\\nvidia\\cu13\\bin\\x86_64"
+  "<ENGINE>\\engine\\.venv\\Lib\\site-packages\\nvidia\\cu13\\bin\\x86_64"
  ],
  "port": 8080,
  "gpu": 0,
  "gpus_asked": true,
  "vision": {
-  "exe": "<ENGINE>\\engine\\strata-vision.exe",
+  "exe": "<ENGINE>\\engine\\engine\\strata-vision.exe",
   "mmproj": "<STRATA-DATA>\\models\\mmproj-Qwen3.8-Flash-Next-BF16.gguf",
   "model": "<STRATA-DATA>\\models\\IQ2_XS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
   "gpu": true,
@@ -52,5 +54,6 @@
  },
  "vram_elastic": true,
  "api_monitor": true,
- "slot_save_path": "<STRATA-DATA>/sessions"
+ "slot_save_path": "<STRATA-DATA>/sessions",
+ "mtp_path": "<STRATA-DATA>\\mtp\\rt"
 }
