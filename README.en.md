@@ -2,9 +2,9 @@
 
 [简体中文](README.md) · **English**
 
-![version](https://img.shields.io/badge/version-v0.62-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.46-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
+![version](https://img.shields.io/badge/version-v0.64-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
 
-**Current release v0.62** (2026-10-20) · see the [中文更新日志](CHANGELOG.md) for release notes
+**Current release v0.64** (2026-10-22) · see the [中文更新日志](CHANGELOG.md) for release notes
 
 A **deeply customized frontend** for the [Niko1221/Strata](https://github.com/Niko1221/Strata) engine. The engine stays stock — the entire interface is rebuilt: local inference that looks, feels and tunes like a proper workstation.
 
@@ -26,17 +26,23 @@ A **deeply customized frontend** for the [Niko1221/Strata](https://github.com/Ni
 
 ![Preferences](shots/nexus-settings.png)
 
+**Four themes (fully tokenised in v0.64: 22 colour variables per theme — accent, secondary, text, panels and code blocks all switch with the theme)**
+
+| Aurora | Glacier | Ember | Mono |
+|---|---|---|---|
+| ![Aurora](shots/theme-aurora.png) | ![Glacier](shots/theme-ice.png) | ![Ember](shots/theme-ember.png) | ![Mono](shots/theme-mono.png) |
+
 ## What changed vs. the stock frontend
 
 ### Interface architecture
 - **All-new NEXUS visual system**: dark glassmorphism + ambient glow, replacing the stock interface
-- **4 themes** (Aurora / Glacier / Ember / Mono), compact/comfortable density, independent toggles for ambient glow, flicker motion and reduced motion
+- **4 themes, fully tokenised** (Aurora / Glacier / Ember / Mono): 22 colour variables per theme — accent, secondary, text, panels and code blocks all follow the theme, and the accent picker is synced to each theme's preset palette; plus compact/comfortable density and independent toggles for ambient glow, flicker motion and reduced motion
 - **Custom accent colors**: theme color, secondary color, primary/muted text colors managed globally
 
 ### Typography & readability
 - **Three-zone font sizing**: interface / code / hint sizes as separate sliders (globally calc-derived, every step visible), independent of each other
 - **Per-chat text control**: separate chat font size + color; Markdown / plain rendering selectable, **Markdown by default** (headings, tables, code blocks, quotes)
-- **3 syntax highlighting themes** (Aurora / Classic / GitHub), hand-written tokenizer, zero dependencies
+- **3 syntax highlighting schemes** (follow-theme / Classic / GitHub), hand-written tokenizer, zero dependencies
 - Hint-size auto-adaptation: when the browser clamps minimum font size, the slider floor is raised automatically so every step stays visible
 
 ### Chat experience

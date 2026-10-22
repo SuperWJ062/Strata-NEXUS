@@ -2,9 +2,9 @@
 
 **简体中文** · [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-v0.62-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.46-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
+![version](https://img.shields.io/badge/version-v0.64-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
 
-**当前版本 v0.62**（2026-10-20）· 更新增量见 [更新日志](CHANGELOG.md)
+**当前版本 v0.64**（2026-10-22）· 更新增量见 [更新日志](CHANGELOG.md)
 
 基于 [Niko1221/Strata](https://github.com/Niko1221/Strata) 上游引擎的**前端深度定制版**。引擎能力不动，界面整个重做：把本地推理变成一个可看的、可调的、像样的工作台。
 
@@ -26,17 +26,23 @@
 
 ![偏好与高级设置](shots/nexus-settings.png)
 
+**四套主题（v0.64 全量 token 化：每套独立 22 个颜色变量，强调色/辅助色/文字/面板/代码块全随主题切换）**
+
+| 极光 Aurora | 冰川 Glacier | 熔 Ember | 钛灰 Mono |
+|---|---|---|---|
+| ![极光](shots/theme-aurora.png) | ![冰川](shots/theme-ice.png) | ![熔](shots/theme-ember.png) | ![钛灰](shots/theme-mono.png) |
+
 ## 相比官方前端的变化
 
 ### 界面架构
 - **全新 NEXUS 视觉体系**：暗色玻璃拟态 + 氛围光效，取代官方默认界面
-- **4 套主题**（极光 Aurora / 冰川 Glacier / 熔 Ember / 素 Mono）+ 紧凑/舒适密度切换 + 界面光效/闪烁动效/减少波动独立开关
+- **4 套主题全量 token 化**（极光 Aurora / 冰川 Glacier / 熔 Ember / 钛灰 Mono）：每套独立 22 个颜色变量，强调色 / 辅助色 / 文字 / 面板 / 代码块全部随主题切换，切主题自动套用该主题的预设色板；+ 紧凑/舒适密度切换 + 界面光效/闪烁动效/减少波动独立开关
 - **强调色自定义**：主题色、辅助色、主/次文字颜色全局管理，图例/按钮/图表风格自动跟随
 
 ### 排版与可读性
 - **三分区字号系统**：界面字号 / 代码字号 / 提示字号独立滑条（全局 calc 化，逐档可见），互不牵动
 - **对话文字独立控制**：字号 + 颜色单独调节；对话渲染 Markdown / 纯文本可选，**默认 Markdown**（标题/表格/代码块/引用块全支持）
-- **代码语法高亮 3 套配色**（Aurora / Classic / GitHub），自写 tokenizer，零外部依赖
+- **代码语法高亮 3 套配色**（跟随主题 / Classic / GitHub），自写 tokenizer，零外部依赖
 - 提示字号自适应：检测到浏览器最小字号钳制时自动抬高下限，保证每档可辨
 
 ### 对话体验
