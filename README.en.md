@@ -128,7 +128,7 @@ Prerequisites: **257 GB of free disk** (138 GB model + 111 GB Engram table + 8 G
 
 ```bat
 cd engine
-.venv\Scripts\python.exe setup.py launch --family deepseek41 --model IST-DAS-2.00bpw --vision yes
+.venv\Scripts\python.exe setup.py --family deepseek41 --model IST-DAS-2.00bpw --vision yes
 ```
 
 What it does, in order:

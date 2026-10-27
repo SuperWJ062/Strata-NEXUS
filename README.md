@@ -138,7 +138,7 @@
 
 ```bat
 cd engine
-.venv\Scripts\python.exe setup.py launch --family deepseek41 --model IST-DAS-2.00bpw --vision yes
+.venv\Scripts\python.exe setup.py --family deepseek41 --model IST-DAS-2.00bpw --vision yes
 ```
 
 这条命令依次做六件事：
