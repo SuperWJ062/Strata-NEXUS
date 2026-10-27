@@ -85,3 +85,12 @@ node_modules/
 # screenshots and checkpoints from the Mac rebuild live outside git (StrataSplit\evidence-archive)
 /apps/host/docs/evidence/
 /apps/host/docs/checkpoints/
+engine/.last-model.json
+
+# NEXUS local: runtime and downloaded binaries, never in git
+engine-dsv41/
+engine-feed/
+.last-model.json
+*.bak
+*.bak-*
+serve/*.bak-*

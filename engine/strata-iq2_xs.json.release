@@ -55,5 +55,9 @@
  "vram_elastic": true,
  "api_monitor": true,
  "slot_save_path": "<STRATA-DATA>/sessions",
- "mtp_path": "<STRATA-DATA>\\mtp\\rt"
+ "mtp_path": "<STRATA-DATA>\\mtp\\rt",
+ "user_args": [
+  "--vram-reserve-mib",
+  "4084"
+ ]
 }

@@ -2,9 +2,9 @@
 
 [简体中文](README.md) · **English**
 
-![version](https://img.shields.io/badge/version-v0.65-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
+![version](https://img.shields.io/badge/version-v0.68-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
 
-**Current release v0.65** (2026-10-22) · see the [中文更新日志](CHANGELOG.md) for release notes
+**Current release v0.68** (2026-10-27) · see the [中文更新日志](CHANGELOG.md) for release notes
 
 A **deeply customized frontend** for the [Niko1221/Strata](https://github.com/Niko1221/Strata) engine. The engine stays stock — the entire interface is rebuilt: local inference that looks, feels and tunes like a proper workstation.
 
@@ -44,6 +44,17 @@ A **deeply customized frontend** for the [Niko1221/Strata](https://github.com/Ni
 - **Per-chat text control**: separate chat font size + color; Markdown / plain rendering selectable, **Markdown by default** (headings, tables, code blocks, quotes)
 - **3 syntax highlighting schemes** (follow-theme / Classic / GitHub), hand-written tokenizer, zero dependencies
 - Hint-size auto-adaptation: when the browser clamps minimum font size, the slider floor is raised automatically so every step stays visible
+
+### Models & engines (v0.68)
+- **DeepSeek image input**: the engine's own vision tower (the server resizes to the engine grid and hands `GENI` a DSI1 file of raw RGB), not the Qwen-side `strata-vision` encoder; `/health` and `/v1/models` report it consistently and the page shows 支持 (supported)
+- **DeepSeek context up to 300K**: native 64K, `--max-context` accepts 307200, ceiling 1M; the page and `/v1/models` show the live value
+- **Default model per line**: besides "switch to this", each installed model row has "set as default", which only writes `engine\.last-model.json` for the next `START.bat` and never touches the running process
+- **Installed models list**: the Models page shows both the online model (`/v1/models`) and every local config (`engine\strata-*.json`, with context, port and running state); an idle one gets a **Switch to this** button that restarts into it and reloads the page
+- **Startup memory**: `START.bat` launches the model used last (`engine\.last-model.json`) instead of always Qwen
+- **VRAM control follows the engine**: Qwen resizes live through `/v1/vram`; the DeepSeek engine has no such command, so the page writes the reserve into the start config and restarts, and says so
+- **Capability gating**: controls the current engine cannot serve (DeepSeek load/unload, updates in a dev install) are greyed out with the reason instead of failing on click
+- **Parameters follow the model**: the runtime page shows MTP / speculative (`mtp`, `spec_tokens`, `spec_min_p`) on Qwen and DSpark (`dspark`, `dspark_block`, `dspark_conf`) on DeepSeek; only the current model's keys are written
+- **Image page notes**: states that image generation belongs to the Qwen side (Qwen-Image-2.1-Turbo via sd-cli), is OFF until an `images` section exists, and lists the local `qwen_image_2.1_turbo_bf16.safetensors` with the enabling steps
 
 ### Chat experience
 - **Smart scrolling**: browse freely while generating, auto-resume on scroll-back + jump-to-bottom button
@@ -95,6 +106,59 @@ Three things to download (main model + MTP draft layer + vision encoder). **Two 
 **The automatic process**: first run asks 4 questions (family / quant / context / images), then downloads in order with resume support, verifies every shard by SHA-256, prepares the engine pack (`Strata-data/packs/iq2_xs`, including the tokenizer) and the MTP layer, then writes the start scripts.
 
 **Mainland China**: if huggingface.co is unreachable, use `--source modelscope` (or `STRATA_SOURCE=modelscope`) to switch to the ModelScope mirror — same repositories, same file paths.
+
+### ④ DeepSeek-V4.1-Flash-1017 (optional large model, ~232 GiB at 2.00bpw)
+
+A 544B sparse MoE (40 layers × 384 experts, 6 active per token): more context and image input than the Qwen tier, at a lower speed.
+
+- Weights: `ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF`, IQ2_XXS in four shards (128.8 GiB) + Engram IQ4_NL (103 GiB, shared by 2.00/2.25/1.75)
+- Engine: `strata-dsv41` 0.1.51, installed in its own folder beside the Qwen engine
+- **Image input (v0.68+)**: also needs `mmproj-DeepSeek-V4.1-Flash-1017-BF16.gguf` (~1 GB, same repository). The shards must be the **2026-10-26 or later** build — earlier ones carry a chat template without `image_url`, so the model cannot read pictures. Once set up, `/v1/models` reports `input_modalities: ["text", "image"]`
+- **Context**: native 64K, up to **307200 (300K)**, ceiling 1M. It costs what you set: 300K is about 5.5 GB of VRAM plus 2.4 GB of shared memory; at 8K both are effectively gone
+- **Measured** (RTX 4090D 24 GB + i5-13600KF + 128 GB RAM, 2.00bpw, 300K context): **about 11 tok/s**. Six of ten experts per token are computed on the CPU and only 6% of the expert set fits in VRAM — that is the limit
+    - context at 8K → 16–19 tok/s
+    - a 32 GB card → around 25 tok/s
+    - four R9700 → 48 tok/s (upstream figure)
+- **VRAM reserve**: every extra GB kept by `--reserve-mib` costs about 110 experts in VRAM; 8180 on a 24 GB card pins you at 11 tok/s, while 700 (the default) reaches 20+ but squeezes the desktop
+- Insufficient RAM pushes experts into the page file and drops the speed below 1 tok/s
+
+**Download and deploy (one command)**
+
+Prerequisites: **257 GB of free disk** (138 GB model + 111 GB Engram table + 8 GB drafter), **40 GB of RAM or more**; NVMe strongly recommended on a 24 GB card.
+
+```bat
+cd engine
+.venv\Scripts\python.exe setup.py launch --family deepseek41 --model IST-DAS-2.00bpw --vision yes
+```
+
+What it does, in order:
+
+1. Downloads the `strata-dsv41` engine (0.1.51, about 398 MB) into `engine\engine-dsv41\`, kept apart from the Qwen engine
+2. Pulls from Hugging Face: four model shards (128.8 GiB in total) + the Engram table (103 GiB) + the DSpark drafter (8 GB) + the vision tower (about 1 GB), all **resumable**
+3. Checks every file against its SHA-256 and stops naming the one that does not match
+4. Packs the shards into the engine's own layout (a `maya-ds4` folder: `ds4.txt` / `tensors.txt` / `tokenizer` / `engram.bin`), about 20 seconds
+5. Runs a 16-token smoke test to prove the model really answers (on failure it prints where the log is)
+6. Writes `engine\strata-deepseek-v4.1-flash-ist-das-2.00bpw.json` and points `.last-model.json` at it
+
+**Behind the Great Firewall**: append `--source modelscope` to use the ModelScope mirror; repositories and file paths are identical.
+
+**Prefer 2.25bpw** (better quality, slightly slower, 17 GB more disk): replace `--model IST-DAS-2.00bpw` with `--model IST-DAS-2.25bpw`.
+
+**Downloading by hand (a download manager is faster)**
+
+| File | Where it goes |
+|---|---|
+| `DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XXS-0000{1..4}-of-00004.gguf` | any folder under `Strata-data\models\` |
+| `DeepSeek-V4.1-Flash-Engram-IQ4_NL.gguf` | the same folder |
+| `dspark-DeepSeek-V4.1-Flash-1017-Q8_0.gguf` | the same folder |
+| `mmproj-DeepSeek-V4.1-Flash-1017-BF16.gguf` | the same folder, beside the model |
+
+Then **run the command above again**: files already present are skipped, and only verification and packing run.
+
+**First start** reads about 130 GB of weights: roughly 20–40 seconds on a 24 GB card with NVMe. Daily starts after that are instant through `START.bat`.
+
+**Going back to Qwen**: click "switch to this" on the models page, or point `engine\.last-model.json` at `strata-iq2_xs.json`. The two engines live in separate folders and never hold VRAM at the same time.
+
 
 ## Updating to a new release
 

@@ -4,7 +4,7 @@ title Strata NEXUS - sync upstream
 cd /d "%~dp0"
 
 rem ============================================================
-rem  Strata NEXUS (D:\Strata 主目录) - sync upstream source
+rem  Strata NEXUS - sync upstream source
 rem  结构：本目录 = 自主项目（启动/升级/文档）；engine\ = 官方上游运行环境
 rem  本脚本：在 engine\ 内 fetch + merge 官方 main，然后走官方
 rem  UPDATE 流程刷新引擎与依赖。模型文件（Strata-data）不动。

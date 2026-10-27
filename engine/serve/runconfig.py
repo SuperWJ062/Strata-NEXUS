@@ -47,6 +47,12 @@ EDITABLE = [
      "Speculative decoding tokens (empty removes --spec; the number goes after the flag)"),
     ("spec_min_p", ("argnum", "--spec-min-p"),
      "Speculative min P (empty removes --spec-min-p)"),
+    ("dspark", ("arg", "--dspark"),
+     "DeepSeek engine only: DSpark drafter mode on/off/none/auto (empty leaves the config as it is)"),
+    ("dspark_block", ("argnum", "--dspark-block"),
+     "DeepSeek engine only: DSpark draft block size (empty removes --dspark-block)"),
+    ("dspark_conf", ("argnum", "--dspark-conf"),
+     "DeepSeek engine only: DSpark acceptance confidence (empty removes --dspark-conf)"),
 ]
 SPEC = {k: kind for k, kind, _ in EDITABLE}
 

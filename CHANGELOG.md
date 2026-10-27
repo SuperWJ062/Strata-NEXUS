@@ -3,6 +3,29 @@
 > 每个版本的增量说明。版本规则：小改满 5 次 +0.01，大改（新功能模块）1 次 +0.01。
 > 英文说明见 [README.en.md](README.en.md)。
 
+## v0.68 · 2026-10-27
+
+- **DeepSeek 图片识别接通**：上游 0.2.6 只把图片通道接给了 Qwen（用 `strata-vision` 预编码），而那个程序打不开 `deepseek41` 模型。实际上引擎自己就能读图——`GENI` 收一个 DSI1 文件（原始 RGB + 宽高），由引擎内置视觉塔编码。现在服务端补上了这条路：按 patch 14 / merge 3 缩放、算 token 数、写 DSI1、把模板占位 `<｜deepseek_image｜>` 扩成实际 span。实测能正确描述图片内容
+- **上下文 8192 → 307200（300K）**：8192 是上游「只验证到 8192」的保守默认，不是模型上限（`max_position_embeddings` 1048576，原生 64K）
+- **换用新版模型分片**：新版 shard1 的 chat template 18401 字符（含 `image_url`），旧 pin 版只有 7387 字符、无图像标记；pack 重建后视觉塔 0.97 GB 入包
+- **模型页「设为默认」**：只写 `engine\.last-model.json`，不动正在跑的服务，决定 `START.bat` 下次启动哪个
+
+## v0.67 · 2026-10-27
+
+- **修 DeepSeek 启动崩溃**：配置里混入 Qwen 专有的 `--vram-reserve-mib`，而 DeepSeek 引擎只认 `--reserve-mib`，引擎一启动就 `unknown option` 退出。已从配置删除，并在服务端加兜底改写（exe 名含 `dsv41` 时自动换成正确的参数名），以后即使被写错也能启动
+- **模型页「设为默认」**：每行两个独立动作 —— 「切换到此」换当前进程，「设为默认」只写 `engine\.last-model.json`，决定 `START.bat` 下次启动哪个；当前默认项显示「默认启动」标记
+- **速度**：`--mmap-experts on` 本次真正生效（专家从模型文件原地读，96.2 GB 内存做缓存），实测生成 6.30 tok/s，此前无 mmap 时只有 0.3 tok/s
+
+## v0.66 · 2026-10-27
+
+- **ⓑ1 模型与引擎页：本机已装模型列表 + 一键切换**：新增 `GET /models/available`（扫描 `engine\strata-*.json`，返回 ctx / 端口 / 运行状态）与 `POST /models/switch`；卡片分「在线模型」与「本机已装」两组，未运行的给「切换到此」，点后自动重启并刷新页面
+- **启动记忆**：服务启动时写 `engine\.last-model.json`，`START.bat` 改为启动上次用过的模型（不再固定 Qwen）
+- **显存控制按引擎分流**：Qwen 走 `POST /v1/vram` 立即生效；DeepSeek 引擎没有 VRAM 命令，界面自动改为「写入启动配置 + 重启生效」并说明原因，不再弹引擎原文
+- **能力门控**：DeepSeek 下禁用「加载 / 卸载模型」（引擎只实现 GEN/GENI/STOP/QUIT）；开发安装下禁用更新按钮并写明原因
+- **高级参数随模型切换**：运行时页在 Qwen 下显示 MTP / Speculative（`mtp`、`spec_tokens`、`spec_min_p`），在 DeepSeek 下改为 DSpark（`dspark`、`dspark_block`、`dspark_conf`），保存只提交当前模型对应的键
+- **图像页说明**：写明图像生成属 Qwen 侧独立能力（Qwen-Image-2.1-Turbo / sd-cli）、未配置 `images` 段即为 OFF，并标注本机已有的 `qwen_image_2.1_turbo_bf16.safetensors` 与启用步骤
+- **支持 DeepSeek-V4.1-Flash-1017（IST-DAS 2.00bpw）**：独立 `strata-dsv41` 0.1.51 引擎与 pack；适配 Engram 在 C 盘、模型分片在 D 盘的跨盘布局
+
 ## v0.65 · 2026-10-22
 
 - **ⓢ1 prefill 读入进度条收尾**：修掉"回答结束后进度条还挂在思考框上方"——根因是完成路径没有隐藏调用（调试期把"思考/正文首块"两个触发点注释掉后没恢复，而服务端最后一个进度 ping 停在 96%，100% 判据永远不成立）；同时 SSE 首包是空的 `delta.content:""`，会误触发隐藏。现在首块（非空）/完成/失败/停止四条路径都会清掉进度条，停止生成时还会复位 tokens 与按钮状态

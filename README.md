@@ -2,9 +2,9 @@
 
 **简体中文** · [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-v0.65-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
+![version](https://img.shields.io/badge/version-v0.68-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
 
-**当前版本 v0.65**（2026-10-22）· 更新增量见 [更新日志](CHANGELOG.md)
+**当前版本 v0.68**（2026-10-27）· 更新增量见 [更新日志](CHANGELOG.md)
 
 基于 [Niko1221/Strata](https://github.com/Niko1221/Strata) 上游引擎的**前端深度定制版**。引擎能力不动，界面整个重做：把本地推理变成一个可看的、可调的、像样的工作台。
 
@@ -44,6 +44,16 @@
 - **对话文字独立控制**：字号 + 颜色单独调节；对话渲染 Markdown / 纯文本可选，**默认 Markdown**（标题/表格/代码块/引用块全支持）
 - **代码语法高亮 3 套配色**（跟随主题 / Classic / GitHub），自写 tokenizer，零外部依赖
 - 提示字号自适应：检测到浏览器最小字号钳制时自动抬高下限，保证每档可辨
+
+### 模型与引擎（v0.68）
+- **DeepSeek 图片识别**：走引擎自带的视觉塔（服务端把图缩放到引擎网格、写原始 RGB 的 DSI1 文件，交给 `GENI`），不依赖 Qwen 侧那个 `strata-vision` 编码器；`/health` 与 `/v1/models` 同步上报，页面「图像输入」显示“支持”
+- **DeepSeek 上下文可开到 300K**：原生 64K，`--max-context` 支持到 307200，上限 1M；页面与 `/v1/models` 如实显示当前值
+- **本机已装模型列表**：「模型与引擎」页同时列出「在线模型」（`/v1/models`）与「本机已装」（`engine\strata-*.json`，含上下文、端口与运行状态）；未运行的给「切换到此」，点击后自动切到该配置并刷新；每行另有「设为默认」，只写 `engine\.last-model.json` 决定 `START.bat` 下次启动哪个，不动正在跑的进程
+- **启动记忆**：`START.bat` 启动上次用过的模型（`engine\.last-model.json`），不再固定 Qwen
+- **显存控制按引擎分流**：Qwen 引擎走运行时 `/v1/vram`，立即生效；DeepSeek 引擎没有该命令，界面自动改成「写入启动配置 + 重启生效」并说明原因
+- **能力门控**：当前引擎不支持的按钮会置灰并给出原因（DeepSeek 的加载/卸载、开发安装的更新），而不是点了才报错
+- **参数按模型切换**：运行时页在 Qwen 下是 MTP / Speculative 三键，在 DeepSeek 下换成 DSpark（模式 / block / conf），保存只写当前模型的键
+- **图像页说明**：标注该能力属于 Qwen 侧（Qwen-Image-2.1-Turbo + sd-cli）、未配 `images` 段即 OFF，并给出本机 `qwen_image_2.1_turbo_bf16.safetensors` 的启用步骤
 
 ### 对话体验
 - **智能滚动**：生成中可自由上滚浏览，滚回底部自动恢复跟随 + 回到底部悬浮钮
@@ -107,7 +117,59 @@
 - 不需要读图可在初始化时选 `images: off` 跳过
 - 自动落位 `Strata-data/models/`
 
-### 下载过程（脚本自动做的事）
+#### ④ DeepSeek-V4.1-Flash-1017（可选大模型，2.00bpw 合计约 232 GiB）
+
+544B 参数的稀疏 MoE（40 层 × 384 专家、每 token 激活 6 个），上下文与图片输入都比 Qwen 档更强，代价是速度。
+
+- 模型：`ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF` 的 IQ2_XXS 四个分片（128.8 GiB）+ Engram IQ4_NL（103 GiB，2.00/2.25/1.75 三套共用）
+- 引擎：`strata-dsv41` 0.1.51，与 Qwen 引擎分开目录安装，互不影响
+- **图片输入（v0.68 起）**：另需 `mmproj-DeepSeek-V4.1-Flash-1017-BF16.gguf`（约 1 GB，与主模型同仓库）。要求分片为 **2026-10-26 之后**的版本——更早的分片 chat template 不含 `image_url`，模型本身读不了图。装好后 `/v1/models` 报 `input_modalities: ["text", "image"]`
+- **上下文**：原生 64K，可开至 **307200（300K）**，上限 1M。占用随设置增长：300K 约 5.5 GB 显存 + 2.4 GB 共享内存，降到 8K 这两项几乎归零
+- **实测速度**（RTX 4090D 24 GB + i5-13600KF + 128 GB 内存，2.00bpw，300K 上下文）：**约 11 tok/s**。每 token 有六成专家由 CPU 现算，显存里只放得下 6% 的专家，这是瓶颈所在
+  - 上下文降到 8K → 16–19 tok/s
+  - 32 GB 显存的卡 → 25 tok/s 量级
+  - 四卡 R9700 → 48 tok/s（上游数据）
+- **显存预留**：`--reserve-mib` 每多留 1 GB，显存就少放约 110 个专家；24 GB 卡上设 8180 会让速度停在 11 tok/s，设 700（默认）可到 20 tok/s 以上，但桌面程序会被挤
+- 内存不足会走页面文件，速度掉到 1 tok/s 以下
+
+**下载与部署（一条命令）**
+
+前提：**257 GB 空闲磁盘**（模型 138 GB + Engram 表 111 GB + 草稿层 8 GB）、**40 GB 以上内存**、24 GB 显卡建议配 NVMe。
+
+```bat
+cd engine
+.venv\Scripts\python.exe setup.py launch --family deepseek41 --model IST-DAS-2.00bpw --vision yes
+```
+
+这条命令依次做六件事：
+
+1. 下载 `strata-dsv41` 引擎（0.1.51，约 398 MB）到 `engine\engine-dsv41\`，与 Qwen 引擎分开放
+2. 从 Hugging Face 拉取：4 个模型分片（共 128.8 GiB）+ Engram 表（103 GiB）+ DSpark 草稿层（8 GB）+ 视觉塔（约 1 GB），**支持断点续传**
+3. 逐文件做 SHA-256 校验，对不上会停下并指出是哪个文件
+4. 把分片打包成引擎专用格式（`maya-ds4` 目录：`ds4.txt` / `tensors.txt` / `tokenizer` / `engram.bin`），约 20 秒
+5. 跑一次 16 词的冒烟测试，确认模型真能回答问题（失败会给出日志位置）
+6. 生成 `engine\strata-deepseek-v4.1-flash-ist-das-2.00bpw.json` 启动配置，并把 `.last-model.json` 指向它
+
+**大陆网络**：命令末尾加 `--source modelscope`，改走 ModelScope 镜像，仓库与文件路径完全一致。
+
+**只想用 2.25bpw**（质量更高、慢一点、多占 17 GB）：把 `--model IST-DAS-2.00bpw` 换成 `--model IST-DAS-2.25bpw`。
+
+**手工下载（想用下载器加速）**
+
+| 文件 | 放到 |
+|---|---|
+| `DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XXS-0000{1..4}-of-00004.gguf` | `Strata-data\models\` 下任一目录 |
+| `DeepSeek-V4.1-Flash-Engram-IQ4_NL.gguf` | 同上 |
+| `dspark-DeepSeek-V4.1-Flash-1017-Q8_0.gguf` | 同上 |
+| `mmproj-DeepSeek-V4.1-Flash-1017-BF16.gguf` | 同上（放在模型目录的同级） |
+
+放好后**再跑一次上面那条命令**——已存在的文件自动跳过下载，只做校验和打包。
+
+**首次启动**：要读约 130 GB 权重，24 GB 显卡 + NVMe 大约 20–40 秒；之后日常 `START.bat` 直接进。
+
+**换回 Qwen**：模型页点「切换到此」，或把 `engine\.last-model.json` 指向 `strata-iq2_xs.json`。两套引擎互不干扰，显存不会同时占用。
+
+## 下载过程（脚本自动做的事）
 
 1. `START-HERE.bat` 首次运行 → 问 4 个问题（模型家族 / 量化档位 / 上下文长度 / 是否读图），然后按上面 ①→③ 顺序下载（**支持断点续传**，中断后重跑接着下）
 2. 下载完成后自动做 SHA-256 逐分片校验
