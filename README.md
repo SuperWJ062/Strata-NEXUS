@@ -2,9 +2,9 @@
 
 **简体中文** · [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-v0.69-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
+![version](https://img.shields.io/badge/version-v0.70-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
 
-**当前版本 v0.69**（2026-10-29）· 更新增量见 [更新日志](CHANGELOG.md)
+**当前版本 v0.70**（2026-10-29）· 更新增量见 [更新日志](CHANGELOG.md)
 
 基于 [Niko1221/Strata](https://github.com/Niko1221/Strata) 上游引擎的**前端深度定制版**。引擎能力不动，界面整个重做：把本地推理变成一个可看的、可调的、像样的工作台。
 
