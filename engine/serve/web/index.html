@@ -14,7 +14,10 @@
 .sessitem.active{background:linear-gradient(100deg,color-mix(in srgb,var(--accent) 11%,transparent),color-mix(in srgb,var(--accent2) 7%,transparent));border-color:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--text)}
 .sessitem .sname{display:block;font-size:calc(12px*var(--fs-scale));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:34px}
 .sessitem .stime{display:block;font-size:calc(10px*var(--tip-scale));color:var(--muted);margin-top:2px}
-.sessitem .sact{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:none;gap:2px}
+.sessitem .sact{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:none;gap:2px}}
+.sessarch-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:6px 10px;font:inherit;font-size:calc(11px*var(--fs-scale));color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.sessarch-toggle:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.srename{width:100%;font:inherit;font-size:calc(12px*var(--fs-scale));color:var(--text);background:var(--panel);border:1px solid var(--accent);border-radius:6px;padding:2px 6px;outline:none}
 .sessitem:hover .sact{display:flex}
 .sessitem .sact button{background:none;border:0;color:var(--muted);width:16px;height:16px;padding:0;cursor:pointer;font-size:11px;line-height:1}
 .sessitem .sact button:hover{color:var(--text)}
@@ -140,8 +143,8 @@ body[data-syn="github"]{--syn-key:#ff7b72;--syn-str:#a5d6ff;--syn-com:#8b949e;--
 <button data-page="api"><span class="ico"><svg><use href="#i-plug"/></svg></span><span class="navtext">API 中心</span></button>
 <button data-page="settings"><span class="ico"><svg><use href="#i-sliders"/></svg></span><span class="navtext">偏好与高级设置</span></button>
 </nav>
-<div class="sesswrap"><div class="navlabel">会话</div><div class="sesslist" id="sessList"></div><button class="btn ghost sessnew" id="sessNew">＋ 新建对话</button></div>
-<div class="sidebar-bottom"><div class="side-status"><div class="statusline"><span class="dot" id="sideDot"></span><span id="sideStatus">等待连接</span><span class="verbadge" id="appVer">v0.70</span></div><p class="mono" id="sideEndpoint">同源接入 · 跟随当前地址</p><p id="sideModel">模型状态未知</p></div><div class="profile"><div class="avatar">N</div><div class="profile-info"><b style="display:block;color:var(--text);font-size:calc(11px*var(--fs-scale))">Local workspace</b><span>本机推理 · 私有部署</span></div></div></div>
+<div class="sesswrap"><div class="navlabel">会话</div><div class="sesslist" id="sessList"></div><div id="sessArchiveWrap" style="display:none;margin:8px 0 2px"><button class="sessarch-toggle" id="sessArchiveToggle"><span>已归档</span><span class="pill" id="sessArchCount">0</span></button><div class="sesslist" id="sessArchive" style="display:none;margin-top:6px"></div></div><button class="btn ghost sessnew" id="sessNew">＋ 新建对话</button></div>
+<div class="sidebar-bottom"><div class="side-status"><div class="statusline"><span class="dot" id="sideDot"></span><span id="sideStatus">等待连接</span><span class="verbadge" id="appVer">v0.71</span></div><p class="mono" id="sideEndpoint">同源接入 · 跟随当前地址</p><p id="sideModel">模型状态未知</p></div><div class="profile"><div class="avatar">N</div><div class="profile-info"><b style="display:block;color:var(--text);font-size:calc(11px*var(--fs-scale))">Local workspace</b><span>本机推理 · 私有部署</span></div></div></div>
 </aside><main class="main"><header class="topbar"><div class="crumb"><span style="color:var(--muted)">STRATA</span>　/　<b id="crumbPage">控制总览</b></div><div class="top-actions"><div class="connection"><span class="dot" id="topDot"></span><span id="topConn">尚未连接本地服务</span></div><button class="iconbtn" id="refreshAll" title="刷新数据"><svg class="ico"><use href="#i-refresh"/></svg></button><button class="iconbtn" id="themeQuick" title="切换主题"><svg class="ico"><use href="#i-moon"/></svg></button><button class="btn primary" id="topNewChat"><svg class="ico"><use href="#i-plus"/></svg><span>新建对话</span></button></div></header><div class="content">
 <section class="page active" id="page-overview"><div class="hero"><div class="hero-inner"><div><div class="eyebrow">LOCAL INTELLIGENCE · ONLINE WORKSPACE</div><h1>把本地推理，变成你的<br><span style="color:var(--accent)">专属智能基础设施。</span></h1><p>一个统一控制台，连接 Strata 推理引擎、实时运行状态和标准 API。数据来自本机服务；所有连接参数由你掌控。</p><div class="hero-cta"><button class="btn primary" data-go="chat"><svg class="ico"><use href="#i-zap"/></svg> 开始对话</button><button class="btn" data-go="monitor">查看系统状态 ↗</button><button class="btn ghost" data-go="api">接入 API</button></div></div><div class="hero-mark"><i class="ring"></i><i class="ring"></i><i class="ring"></i><strong>S²</strong></div></div></div>
 <div class="grid g4" style="margin-bottom:15px"><div class="panel metric"><div class="metric-label">生成吞吐 <span class="metric-icon"><svg class="ico"><use href="#i-zap"/></svg></span></div><div class="metric-value" id="ovTps">— <small>tok/s</small></div><div class="tiny" id="ovTpsNote">等待实际采样数据</div></div><div class="panel metric"><div class="metric-label">GPU 显存 <span class="metric-icon"><svg class="ico"><use href="#i-cpu"/></svg></span></div><div class="metric-value" id="ovVram">— <small>GiB</small></div><div class="tiny" id="ovVramNote">已用 / 总量</div></div><div class="panel metric"><div class="metric-label">模型状态 <span class="metric-icon"><svg class="ico"><use href="#i-server"/></svg></span></div><div class="metric-value" style="font-size:calc(24px*var(--fs-scale))" id="ovModelState">未知</div><div class="tiny" id="ovModelNote">通过 /health 检测</div></div><div class="panel metric"><div class="metric-label">API 请求 <span class="metric-icon"><svg class="ico"><use href="#i-activity"/></svg></span></div><div class="metric-value" id="ovRequests">0</div><div class="tiny" id="ovRequestsNote">本页面会话内发起</div></div></div>
@@ -398,11 +401,65 @@ function sessSave(list){try{localStorage.setItem('chatCurrentId',state.currentId
 function sessMigrate(){const list=sessLoad();if(!list.length){let seeded=false;try{const rec=JSON.parse(localStorage.getItem('chatSession')||'null');if(rec&&Array.isArray(rec.messages)&&rec.messages.length){list.push({id:'m'+Date.now().toString(36),title:'导入的会话',createdAt:rec.savedAt||Date.now(),updatedAt:rec.savedAt||Date.now(),messages:rec.messages.slice(-40)});seeded=true}}catch(e){}if(!seeded)list.push({id:'s'+Date.now().toString(36),title:'新对话',createdAt:Date.now(),updatedAt:Date.now(),messages:[]});sessSave(list)}return list}
 function sessCurrent(){return state.sessions.find(x=>x.id===state.currentId)}
 function sessPersist(){const cur=sessCurrent();if(!cur)return;cur.messages=state.messages.slice(-40);cur.updatedAt=Date.now();if(cur.title==='新对话'){const first=state.messages.find(m=>m.role==='user');if(first)cur.title=String(typeof first.content==='string'?first.content:'图片对话').slice(0,18)}sessSave(state.sessions);renderSessionList()}
-function renderSessionList(){const box=$('#sessList');if(!box)return;box.innerHTML='';state.sessions.forEach(x=>{const b=document.createElement('div');b.className='sessitem'+(x.id===state.currentId?' active':'');const d=new Date(x.updatedAt||x.createdAt||Date.now());const nm=document.createElement('span');nm.className='sname';nm.textContent=x.title||'新对话';const tm=document.createElement('span');tm.className='stime';tm.textContent=(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');const act=document.createElement('span');act.className='sact';const rn=document.createElement('button');rn.textContent='✎';rn.title='重命名';rn.addEventListener('click',ev=>{ev.stopPropagation();const n=prompt('重命名会话：',x.title);if(n&&n.trim()){x.title=n.trim().slice(0,30);sessSave(state.sessions);renderSessionList()}});const dl=document.createElement('button');dl.textContent='✕';dl.title='删除';dl.addEventListener('click',ev=>{ev.stopPropagation();modalConfirm('删除会话','删除「'+(x.title||'新对话')+'」？该操作不可恢复。',()=>{const i=state.sessions.indexOf(x);if(i>=0)state.sessions.splice(i,1);if(!state.sessions.length)state.sessions.push({id:'s'+Date.now().toString(36),title:'新对话',createdAt:Date.now(),updatedAt:Date.now(),messages:[]});if(x.id===state.currentId||!state.sessions.find(y=>y.id===state.currentId)){state.currentId=state.sessions[0].id;state.messages=state.sessions[0].messages;renderMessages()}sessSave(state.sessions);renderSessionList();toast('会话已删除')})});act.append(rn,dl);b.append(nm,tm,act);b.addEventListener('click',()=>switchSession(x.id));box.append(b)})}
+function renderSessionList(){
+  const box=$("#sessList");if(!box)return;box.innerHTML="";
+  const live=state.sessions.filter(x=>!x.archived),arc=state.sessions.filter(x=>x.archived);
+  live.forEach(x=>box.append(sessNode(x,"live")));
+  const wrap=$("#sessArchiveWrap"),arcBox=$("#sessArchive");
+  if(wrap&&arcBox){
+    wrap.style.display=arc.length?"":"none";
+    setText("sessArchCount",String(arc.length));
+    arcBox.innerHTML="";
+    arc.forEach(x=>arcBox.append(sessNode(x,"arch")));
+  }
+}
+function sessNode(x,mode){
+  const b=document.createElement("div");
+  b.className="sessitem"+(x.id===state.currentId?" active":"");
+  const d=new Date(x.updatedAt||x.createdAt||Date.now());
+  const nm=document.createElement("span");nm.className="sname";nm.textContent=x.title||"新对话";
+  const tm=document.createElement("span");tm.className="stime";
+  tm.textContent=(d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  const act=document.createElement("span");act.className="sact";
+  if(mode==="live"){
+    const rn=document.createElement("button");rn.textContent="✎";rn.title="重命名";
+    rn.addEventListener("click",ev=>{ev.stopPropagation();sessRename(nm,x)});
+    const ar=document.createElement("button");ar.textContent="⇩";ar.title="归档";
+    ar.addEventListener("click",ev=>{ev.stopPropagation();x.archived=true;x.updatedAt=Date.now();if(!state.sessions.some(y=>!y.archived))state.sessions.push({id:"s"+Date.now().toString(36),title:"新对话",createdAt:Date.now(),updatedAt:Date.now(),messages:[]});if(x.id===state.currentId){const nx=state.sessions.find(y=>!y.archived);if(nx){state.currentId=nx.id;state.messages=nx.messages;renderMessages()}}sessSave(state.sessions);renderSessionList();toast("已归档")});
+    const dl=document.createElement("button");dl.textContent="✕";dl.title="删除";
+    dl.addEventListener("click",ev=>{ev.stopPropagation();sessDelete(x)});
+    act.append(rn,ar,dl);
+  }else{
+    const rs=document.createElement("button");rs.textContent="↩";rs.title="恢复";
+    rs.addEventListener("click",ev=>{ev.stopPropagation();x.archived=false;x.updatedAt=Date.now();sessSave(state.sessions);renderSessionList();toast("已恢复")});
+    const dl2=document.createElement("button");dl2.textContent="✕";dl2.title="删除";
+    dl2.addEventListener("click",ev=>{ev.stopPropagation();sessDelete(x)});
+    act.append(rs,dl2);
+  }
+  b.append(nm,tm,act);
+  b.addEventListener("click",()=>switchSession(x.id));
+  return b;
+}
+function sessRename(nmEl,x){
+  const inp=document.createElement("input");inp.className="srename";inp.value=x.title||"新对话";
+  nmEl.replaceWith(inp);inp.focus();inp.select();
+  let done=false;
+  const finish=ok=>{if(done)return;done=true;const v=(inp.value||"").trim();if(ok&&v){x.title=v.slice(0,30);x.updatedAt=Date.now();sessSave(state.sessions)}renderSessionList()};
+  inp.addEventListener("blur",()=>finish(true));
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();finish(true)}else if(e.key==="Escape"){e.preventDefault();finish(false)}});
+}
+function sessDelete(x){
+  modalConfirm("删除会话","删除「"+(x.title||"新对话")+"」？该操作不可恢复。",()=>{
+    const k=state.sessions.indexOf(x);if(k>=0)state.sessions.splice(k,1);
+    if(!state.sessions.length)state.sessions.push({id:"s"+Date.now().toString(36),title:"新对话",createdAt:Date.now(),updatedAt:Date.now(),messages:[]});
+    if(x.id===state.currentId||!state.sessions.find(y=>y.id===state.currentId)){state.currentId=state.sessions[0].id;state.messages=state.sessions[0].messages;renderMessages()}
+    sessSave(state.sessions);renderSessionList();toast("会话已删除");
+  });
+}
 function switchSession(id){if(state.abort)state.abort.abort();const cur=sessCurrent();if(cur)cur.messages=state.messages.slice(-40);const t=state.sessions.find(x=>x.id===id);if(!t)return;state.currentId=id;state.messages=t.messages||[];t.messages=state.messages;state.image=null;$('#imageAttachment').innerHTML='';state.abort=null;$('#sendBtn').disabled=false;$('#sendBtn').style.display='grid';$('#stopBtn').disabled=true;$('#stopBtn').style.display='none';renderMessages();renderSessionList();sessSave(state.sessions);navigate('chat')}
 function newSession(){if(state.abort)state.abort.abort();const cur=sessCurrent();if(cur&&state.messages.length===0){navigate('chat');$('#chatInput').focus();return}if(cur){cur.messages=state.messages.slice(-40);cur.updatedAt=Date.now();sessSave(state.sessions)}const empty=state.sessions.find(x=>x.id!==state.currentId&&(!x.messages||!x.messages.length));if(empty){state.currentId=empty.id;state.messages=empty.messages}else{const ns={id:'s'+Date.now().toString(36),title:'新对话',createdAt:Date.now(),updatedAt:Date.now(),messages:[]};state.sessions.unshift(ns);state.currentId=ns.id;state.messages=ns.messages}state.image=null;$('#imageAttachment').innerHTML='';state.abort=null;$('#sendBtn').disabled=false;$('#sendBtn').style.display='grid';$('#stopBtn').disabled=true;$('#stopBtn').style.display='none';renderMessages();renderSessionList();sessSave(state.sessions);navigate('chat');$('#chatInput').focus()}
 state.sessions=sessMigrate();const savedId=localStorage.getItem('chatCurrentId');state.currentId=(savedId&&state.sessions.find(x=>x.id===savedId))?savedId:state.sessions[0].id;state.messages=(state.sessions.find(x=>x.id===state.currentId)||state.sessions[0]).messages||[];renderSessionList();renderMessages();
-$('#sessNew').addEventListener('click',newSession);
+$('#sessNew').addEventListener('click',newSession);$('#sessArchiveToggle')?.addEventListener('click',()=>{const a=$('#sessArchive');if(a)a.style.display=a.style.display==='none'?'':'none'});
 $('#topNewChat').addEventListener('click',()=>{newSession()});$('#clearChat').addEventListener('click',()=>{resetChat();sessPersist()});$('#exportChat').addEventListener('click',()=>{const text=state.messages.map(m=>`## ${m.role==='user'?'User':'Assistant'}\n\n${m.displayContent??(typeof m.content==='string'?m.content:'[image attachment]')}`).join('\n\n---\n\n');download('strata-chat.md',text,'text/markdown')});$$('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{setVal('chatInput',b.dataset.prompt);navigate('chat');setTimeout(()=>$('#chatInput').focus(),80)}));
 function initFolds(){/* 默认：参数折叠/状态展开；用户手动改变后记忆到 localStorage（王苏：记忆用户选择，保留） */
 let prefs={params:true,status:true};try{prefs=Object.assign(prefs,JSON.parse(localStorage.getItem('chatFold')||'{}'))}catch(e){}['params','status'].forEach(k=>{const el=document.getElementById('fold-'+k);if(!el)return;el.classList.toggle('open',!!prefs[k]);el.querySelector('.fold-head').addEventListener('click',()=>{prefs[k]=el.classList.toggle('open');try{localStorage.setItem('chatFold',JSON.stringify(prefs))}catch(e){}})})}

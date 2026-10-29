@@ -2,9 +2,9 @@
 
 [简体中文](README.md) · **English**
 
-![version](https://img.shields.io/badge/version-v0.70-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
+![version](https://img.shields.io/badge/version-v0.71-71f6d2) ![engine](https://img.shields.io/badge/engine-0.1.47-9b8cff) ![license](https://img.shields.io/badge/license-MIT-8291aa)
 
-**Current release v0.70** (2026-10-29) · see the [中文更新日志](CHANGELOG.md) for release notes
+**Current release v0.71** (2026-10-29) · see the [中文更新日志](CHANGELOG.md) for release notes
 
 A **deeply customized frontend** for the [Niko1221/Strata](https://github.com/Niko1221/Strata) engine. The engine stays stock — the entire interface is rebuilt: local inference that looks, feels and tunes like a proper workstation.
 
